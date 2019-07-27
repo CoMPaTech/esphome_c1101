@@ -1,21 +1,36 @@
-Work in progress
+`!!Work in progress!!`
 
+# ESPHome ITHO control
 Trying to get ESPHome to mimic what is comprised in
  
  - https://github.com/jodur/ESPEASY_Plugin_ITHO/blob/master/_P145_Itho.ino
  - https://github.com/adri/IthoEcoFanRFT / https://github.com/supersjimmie/IthoEcoFanRFT
 
 
-Current status:
+# How-to
+
+Not tested from HA yet, just from CLI. Assumption: you have a machine ready with the ESP8266 and C1101 connected to it.
+
+That machine is also ready to go as instructed per https://esphome.io/guides/getting_started_command_line.html (`pip install`)
+
+- Copy `itho.yaml` and `c1101h` to a directory of choice
+- Run `esphome itho.yaml run` and watch the magic happen
+- Go into HA, choose `integrations` and add your ITHO
+- If everything goes well, you'll see `sensor.fanspeed`, `sensor.fantimer` and a couple of `switch.fansend***` popping up.
+- Enjoy!
+
+
+#Current status:
 
  - Sending High/Low works
  - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
 
-Current issues:
+#Current issues:
 
  - How to have 'multiple' switches like we have multiple sensors
+ - `itho.yaml` is missing the entries for the timers ... due to lack of daylight and the above issue combined
 
-Wiring schema used:
+#Wiring schema used:
 
 ```
 Connections between the CC1101 and the ESP8266 or Arduino:
@@ -29,3 +44,5 @@ CC11xx pins    ESP pins Arduino pins  Description
 *  7 - GDO0       ?        Pin  ?        Programmable output
 *  8 - CSN        15=D8    Pin 10        Chip select / (SPI_SS)
 ```
+
+
