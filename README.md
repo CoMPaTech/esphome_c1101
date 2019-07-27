@@ -9,11 +9,10 @@ Trying to get ESPHome to mimic what is comprised in
 Current status:
 
  - Sending High/Low works
- - Reading doesn't
+ - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
 
 Current issues:
 
- - How to `attachInterrupt` (crashes ESPs when active)
  - How to have 'multiple' switches like we have multiple sensors
 
 Wiring schema used:

@@ -3,21 +3,23 @@ esphome:
   platform: ESP8266
   board: d1_mini_pro
   includes: 
-    - c1101.h
+    - ITHO/c1101.h
   libraries: 
     - https://github.com/CoMPaTech/esphome_itho.git
 
 wifi:
   ssid: "secret"
-  password: "secret"
+  password: "evenmoresecret"
 
+# Enable logging
 logger:
 
+# Enable Home Assistant API
 api:
-  password: 'itho'
+  password: 'fan'
 
 ota:
-  password: 'itho'
+  password: 'fan'
 
 switch:
 - platform: custom
@@ -31,6 +33,15 @@ switch:
 
 - platform: custom
   lambda: |-
+    auto fansendmedium = new FanSendMedium();
+    App.register_component(fansendmedium);
+    return {fansendmedium};
+
+  switches:
+    name: "FanSendMedium"
+
+- platform: custom
+  lambda: |-
     auto fansendhigh = new FanSendHigh();
     App.register_component(fansendhigh);
     return {fansendhigh};
@@ -38,13 +49,17 @@ switch:
   switches:
     name: "FanSendHigh"
 
-sensor:
+# Rinse/repeat for the timers
+# see outstanding question in c1101.h
+# on multiple switches handling
+
+text_sensor:
 - platform: custom
   lambda: |-
     auto fanrecv = new FanRecv();
     App.register_component(fanrecv);
     return {fanrecv->fanspeed,fanrecv->fantimer};
 
-  sensors:
+  text_sensors:
     - name: "FanSpeed"
     - name: "FanTimer"

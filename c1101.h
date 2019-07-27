@@ -9,8 +9,8 @@ void ITHOcheck();
 // extra for interrupt handling
 bool ITHOhasPacket = false;
 Ticker ITHOticker;
-int State=1; // after startup it is assumed that the fan is running low
-int OldState=1;
+String State="Low"; // after startup it is assumed that the fan is running low
+String OldState="Low";
 int Timer=0;
 int LastIDindex = 0;
 int OldLastIDindex = 0;
@@ -23,14 +23,14 @@ bool InitRunned = false;
 #define Time3      30*60
 
 
-class FanRecv : public PollingComponent, public Sensor {
+class FanRecv : public PollingComponent {
   public:
 
     // Publish two sensors
     // Speed: the speed the fan is running at (depending on your model 1-2-3 or 1-2-3-4
-    Sensor *fanspeed = new Sensor();
+    TextSensor *fanspeed = new TextSensor();
     // Timer left (though this is indicative) when pressing the timer button once, twice or three times
-    Sensor *fantimer = new Sensor();
+    TextSensor *fantimer = new TextSensor();
 
     // For now poll every 15 seconds
     FanRecv() : PollingComponent(15000) { }
@@ -39,51 +39,57 @@ class FanRecv : public PollingComponent, public Sensor {
       rf.init();
       // Followin wiring schema, change PIN if you wire differently
       pinMode(D1, INPUT);
-      //Breaking (reboot loop on ESPs)
-      //attachInterrupt(D1, ITHOinterrupt, RISING);
-      //Also Breaking (reboot loop on ESPs) (calling direct without Ticker)
+      attachInterrupt(D1, ITHOinterrupt, RISING);
       //attachInterrupt(D1, ITHOcheck, RISING);
-/*
-[22:35:04][I][app:028]: Running through setup()...
-[22:35:04][C][wifi:029]: Setting up WiFi...
-[22:35:04][D][custom:082]: Update called
-[22:35:12]
-[22:35:12] ets Jan  8 2013,rst cause:4, boot mode:(3,6)
-[22:35:12]
-[22:35:12]wdt reset
-[22:35:12]load 0x4010f000, len 1384, room 16
-[22:35:12]tail 8
-[22:35:12]chksum 0x2d
-[22:35:12]csum 0x2d
-[22:35:12]vbb28d4a3
-[22:35:12]~ld
-[22:35:12][I][logger:116]: Log initialized
-[22:35:12][C][ota:364]: There have been 1 suspected unsuccessful boot attempts.
-[22:35:12][I][app:028]: Running through setup()...
-*/
       rf.initReceive();
     }
 
     void update() override {
-        fanspeed->publish_state(State);
-        fantimer->publish_state(Timer);
+        fanspeed->publish_state(State.c_str());
+        fantimer->publish_state(String(Timer).c_str());
     }
 
 
 };
 
-// Figure out how to do multiple sensors instead of duplicating them
+// Figure out how to do multiple switches instead of duplicating them
 // we need
 // send: low, medium, high, full
 //       timer 1 (10 minutes), 2 (20), 3 (30)
 // To optimize testing, reset published state immediately so you can retrigger (i.e. momentarily button press)
+class FanSendFull : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoFull);
+        State = "High";
+        Timer = 0;
+        publish_state(!state);
+      }
+    }
+};
+
 class FanSendHigh : public Component, public Switch {
   public:
 
     void write_state(bool state) override {
       if ( state ) {
         rf.sendCommand(IthoHigh);
-        State = 3;
+        State = "High";
+        Timer = 0;
+        publish_state(!state);
+      }
+    }
+};
+
+class FanSendMedium : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoMedium);
+        State = "Medium";
         Timer = 0;
         publish_state(!state);
       }
@@ -96,54 +102,97 @@ class FanSendLow : public Component, public Switch {
     void write_state(bool state) override {
       if ( state ) {
         rf.sendCommand(IthoLow);
-        State = 1;
+        State = "Low";
         Timer = 0;
         publish_state(!state);
       }
     }
 };
 
-// Handlers from ESPeasy 154 plugin
+class FanSendIthoTimer1 : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoTimer1);
+        State = "High";
+        Timer = Time1;
+        publish_state(!state);
+      }
+    }
+};
+
+class FanSendIthoTimer2 : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoTimer2);
+        State = "High";
+        Timer = Time2;
+        publish_state(!state);
+      }
+    }
+};
+
+class FanSendIthoTimer3 : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoTimer3);
+        State = "High";
+        Timer = Time3;
+        publish_state(!state);
+      }
+    }
+};
+
 void ITHOinterrupt() {
 	ITHOticker.once_ms(10, ITHOcheck);
 }
 
 void ITHOcheck() {
   noInterrupts();
-  ESP_LOGD("custom", "Update called");
-  rf.initReceive();
-  ESP_LOGD("custom", "Ready to receive");
   if (rf.checkForNewPacket()) {
-    ESP_LOGD("custom", "Packet received");
     IthoCommand cmd = rf.getLastCommand();
-	ESP_LOGD("custom", "cmd received: %s",cmd);
     switch (cmd) {
       case IthoUnknown:
-        State = 0;
-        Timer = 0;
+        ESP_LOGD("custom", "Unknown state");
         break;
       case IthoLow:
-        State = 1;
+        ESP_LOGD("custom", "IthoLow");
+        State = "Low";
         Timer = 0;
         break;
       case IthoMedium:
-        State = 2;
+        ESP_LOGD("custom", "Medium");
+        State = "Medium";
+        Timer = 0;
+        break;
+      case IthoHigh:
+        ESP_LOGD("custom", "High");
+        State = "High";
         Timer = 0;
         break;
       case IthoFull:
-        State = 3;
+        ESP_LOGD("custom", "Full");
+        State = "Full";
         Timer = 0;
         break;
       case IthoTimer1:
-        State = 13;
+        ESP_LOGD("custom", "Timer1");
+        State = "High";
         Timer = Time1;
         break;
       case IthoTimer2:
-        State = 23;
+        ESP_LOGD("custom", "Timer2");
+        State = "High";
         Timer = Time2;
         break;
       case IthoTimer3:
-        State = 33;
+        ESP_LOGD("custom", "Timer3");
+        State = "High 30";
         Timer = Time3;
         break;
       case IthoJoin:
