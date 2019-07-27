@@ -1,0 +1,50 @@
+esphome:
+  name: fancontrol
+  platform: ESP8266
+  board: d1_mini_pro
+  includes: 
+    - c1101.h
+  libraries: 
+    - https://github.com/CoMPaTech/esphome_itho.git
+
+wifi:
+  ssid: "secret"
+  password: "secret"
+
+logger:
+
+api:
+  password: 'itho'
+
+ota:
+  password: 'itho'
+
+switch:
+- platform: custom
+  lambda: |-
+    auto fansendlow = new FanSendLow();
+    App.register_component(fansendlow);
+    return {fansendlow};
+
+  switches:
+    name: "FanSendLow"
+
+- platform: custom
+  lambda: |-
+    auto fansendhigh = new FanSendHigh();
+    App.register_component(fansendhigh);
+    return {fansendhigh};
+
+  switches:
+    name: "FanSendHigh"
+
+sensor:
+- platform: custom
+  lambda: |-
+    auto fanrecv = new FanRecv();
+    App.register_component(fanrecv);
+    return {fanrecv->fanspeed,fanrecv->fantimer};
+
+  sensors:
+    - name: "FanSpeed"
+    - name: "FanTimer"
