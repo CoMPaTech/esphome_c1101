@@ -45,4 +45,7 @@ CC11xx pins    ESP pins Arduino pins  Description
 *  8 - CSN        15=D8    Pin 10        Chip select / (SPI_SS)
 ```
 
+# Dependencies
 
+- ESPHome
+- https://github.com/CoMPaTech/esphome_itho
