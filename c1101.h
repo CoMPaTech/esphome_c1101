@@ -26,14 +26,20 @@ bool InitRunned = false;
 class FanRecv : public PollingComponent, public Sensor {
   public:
 
+    // Publish two sensors
+    // Speed: the speed the fan is running at (depending on your model 1-2-3 or 1-2-3-4
     Sensor *fanspeed = new Sensor();
+    // Timer left (though this is indicative) when pressing the timer button once, twice or three times
     Sensor *fantimer = new Sensor();
 
+    // For now poll every 15 seconds
     FanRecv() : PollingComponent(15000) { }
 
     void setup() {
       rf.init();
+      // Followin wiring schema, change PIN if you wire differently
       pinMode(D1, INPUT);
+      //Breaking (reboot loop on ESPs)
       //attachInterrupt(D1, ITHOcheck, RISING);
       rf.initReceive();
     }
