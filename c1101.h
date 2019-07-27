@@ -52,6 +52,11 @@ class FanRecv : public PollingComponent, public Sensor {
 
 };
 
+// Figure out how to do multiple sensors instead of duplicating them
+// we need
+// send: low, medium, high, full
+//       timer 1 (10 minutes), 2 (20), 3 (30)
+// To optimize testing, reset published state immediately so you can retrigger (i.e. momentarily button press)
 class FanSendHigh : public Component, public Switch {
   public:
 
@@ -78,6 +83,7 @@ class FanSendLow : public Component, public Switch {
     }
 };
 
+// Handlers from ESPeasy 154 plugin
 void ITHOinterrupt() {
 	ITHOticker.once_ms(10, ITHOcheck);
 }
