@@ -20,17 +20,17 @@ That machine is also ready to go as instructed per https://esphome.io/guides/get
 - Enjoy!
 
 
-#Current status:
+# Current status:
 
  - Sending High/Low works
  - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
 
-#Current issues:
+# Current issues:
 
  - How to have 'multiple' switches like we have multiple sensors
  - `itho.yaml` is missing the entries for the timers ... due to lack of daylight and the above issue combined
 
-#Wiring schema used:
+# Wiring schema used:
 
 ```
 Connections between the CC1101 and the ESP8266 or Arduino:
