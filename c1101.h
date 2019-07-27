@@ -40,7 +40,27 @@ class FanRecv : public PollingComponent, public Sensor {
       // Followin wiring schema, change PIN if you wire differently
       pinMode(D1, INPUT);
       //Breaking (reboot loop on ESPs)
+      //attachInterrupt(D1, ITHOinterrupt, RISING);
+      //Also Breaking (reboot loop on ESPs) (calling direct without Ticker)
       //attachInterrupt(D1, ITHOcheck, RISING);
+/*
+[22:35:04][I][app:028]: Running through setup()...
+[22:35:04][C][wifi:029]: Setting up WiFi...
+[22:35:04][D][custom:082]: Update called
+[22:35:12]
+[22:35:12] ets Jan  8 2013,rst cause:4, boot mode:(3,6)
+[22:35:12]
+[22:35:12]wdt reset
+[22:35:12]load 0x4010f000, len 1384, room 16
+[22:35:12]tail 8
+[22:35:12]chksum 0x2d
+[22:35:12]csum 0x2d
+[22:35:12]vbb28d4a3
+[22:35:12]~ld
+[22:35:12][I][logger:116]: Log initialized
+[22:35:12][C][ota:364]: There have been 1 suspected unsuccessful boot attempts.
+[22:35:12][I][app:028]: Running through setup()...
+*/
       rf.initReceive();
     }
 
