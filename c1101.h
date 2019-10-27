@@ -148,6 +148,19 @@ class FanSendIthoTimer3 : public Component, public Switch {
     }
 };
 
+class FanSendIthoJoin : public Component, public Switch {
+  public:
+
+    void write_state(bool state) override {
+      if ( state ) {
+        rf.sendCommand(IthoJoin);
+        State = "Join";
+        Timer = 0;
+        publish_state(!state);
+      }
+    }
+};
+
 void ITHOinterrupt() {
 	ITHOticker.once_ms(10, ITHOcheck);
 }

@@ -49,6 +49,14 @@ switch:
   switches:
     name: "FanSendHigh"
 
+- platform: custom
+  lambda: |-
+    auto fansendjoin = new FanSendIthoJoin();
+    App.register_component(fansendjoin);
+    return {fansendjoin};
+  switches:
+    name: "FanSendJoin"
+
 # Rinse/repeat for the timers
 # see outstanding question in c1101.h
 # on multiple switches handling
