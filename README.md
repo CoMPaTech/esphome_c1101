@@ -30,6 +30,10 @@ That machine is also ready to go as instructed per https://esphome.io/guides/get
  - How to have 'multiple' switches like we have multiple sensors
  - `itho.yaml` is missing the entries for the timers ... due to lack of daylight and the above issue combined
 
+# Fixed issue
+
+ - Adding join command switch as requested by @danieldotnl and as well by @tomduijf
+
 # Wiring schema used:
 
 ```
@@ -47,5 +51,9 @@ CC11xx pins    ESP pins Arduino pins  Description
 
 # Dependencies
 
-- ESPHome
-- https://github.com/CoMPaTech/esphome_itho
+ - ESPHome
+ - https://github.com/CoMPaTech/esphome_itho
+
+# Todo
+
+ - Figure out a nice way to make it a service instead of all separate switches in HA as requested by @danieldotnl
