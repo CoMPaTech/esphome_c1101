@@ -17,22 +17,23 @@ That machine is also ready to go as instructed per https://esphome.io/guides/get
 - Run `esphome itho.yaml run` and watch the magic happen
 - Go into HA, choose `integrations` and add your ITHO
 - If everything goes well, you'll see `sensor.fanspeed`, `sensor.fantimer` and a couple of `switch.fansend***` popping up.
+- Now include the contents of `HA_configuration.yaml` in your Home-Assitant configuration and reload HA
 - Enjoy!
 
 
 # Current status:
 
- - Sending High/Low works
+ - Sending High/Medium/Low and the Timers work
  - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
 
 # Current issues:
 
- - How to have 'multiple' switches like we have multiple sensors
- - `itho.yaml` is missing the entries for the timers ... due to lack of daylight and the above issue combined
+ - How to have 'multiple' switches like we have multiple sensors -> for now comprised using template fan in HA
 
 # Fixed issue
 
  - Adding join command switch as requested by @danieldotnl and as well by @tomduijf
+ - Adding 'fan' control in HA
 
 # Wiring schema used:
 
@@ -54,6 +55,3 @@ CC11xx pins    ESP pins Arduino pins  Description
  - ESPHome
  - https://github.com/CoMPaTech/esphome_itho
 
-# Todo
-
- - Figure out a nice way to make it a service instead of all separate switches in HA as requested by @danieldotnl
