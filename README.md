@@ -1,5 +1,11 @@
 `!!Work in progress!!`
 
+## NOTE - this repo uses custom-HomeAssistant scripting
+
+`If you like native ESPhome scripting and 'just having a fan' in HA, use the alternative repo`
+
+As per request by @jodur there is also is https://github.com/CoMPaTech/esphome_c1101_alt which is a quick (but working!) demo of (ab)using the ESPhome fan & output 
+
 # ESPHome ITHO control
 Trying to get ESPHome to mimic what is comprised in
  
