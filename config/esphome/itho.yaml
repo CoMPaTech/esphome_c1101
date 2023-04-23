@@ -1,0 +1,191 @@
+esphome:
+  name: fancontrol
+  platform: ESP8266
+  board: d1_mini_pro
+  includes: 
+    - ITHO/fancontrol.h
+  libraries: 
+    - https://github.com/CoMPaTech/esphome_itho.git
+    - Ticker
+    - SPI
+
+wifi:
+  ssid: "secret"
+  password: "evenmoresecret"
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: 'somethinggenerated'
+
+ota:
+  password: 'fan'
+
+fan:
+  - platform: speed
+    speed_count: 3
+    id: mech_vent_fan
+    output: mech_vent
+    name: "Mechanische ventilatie"
+    restore_mode: NO_RESTORE
+    on_turn_on:
+    - logger.log: "Fan Turned On, setting to 10min!"
+    - switch.turn_on: fansendt1
+
+    on_turn_off:
+    - logger.log: "Fan Turned Off, setting to low speed!"
+    - switch.turn_on: fansendlow
+
+
+output:
+  - platform: template
+    id: mech_vent
+    type: float
+    write_action:
+      - if:
+          condition:
+            lambda: return ((state == 0));
+          then:
+            # action for off
+            - logger.log: "Fan set to low speed"
+            - switch.turn_on: fansendlow
+      - if:
+          condition:
+            lambda: return ((state > 0) && (state < .34));
+          then:
+            # action for low
+            - logger.log: "Fan set to low speed"
+            - switch.turn_on: fansendlow
+      - if:
+          condition:
+            lambda: return ((state > .34) && (state < .67));
+          then:
+            # action for medium
+            - logger.log: "Fan set to medium speed"
+            - switch.turn_on: fansendmedium
+
+      - if:
+          condition:
+            lambda: return ((state == 1));
+          then:
+            # action for high
+            - logger.log: "Fan set to high speed"
+            - switch.turn_on: fansendhigh
+
+
+switch:
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(0.33);
+    auto fansendlow = new FanSendLow();
+    App.register_component(fansendlow);
+    return {fansendlow};
+
+  switches:
+    name: "FanSendLow"
+    id: fansendlow
+
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(0.66);
+    auto fansendmedium = new FanSendMedium();
+    App.register_component(fansendmedium);
+    return {fansendmedium};
+
+  switches:
+    name: "FanSendMedium"
+    id: fansendmedium
+
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(1);
+    auto fansendhigh = new FanSendHigh();
+    App.register_component(fansendhigh);
+    return {fansendhigh};
+
+  switches:
+    name: "FanSendHigh"
+    id: fansendhigh
+
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(1);
+    auto fansendt1 = new FanSendIthoTimer1();
+    App.register_component(fansendt1);
+    return {fansendt1};
+
+  switches:
+    name: "FanSendTimer1"
+    id: fansendt1
+
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(1);
+    auto fansendt2 = new FanSendIthoTimer2();
+    App.register_component(fansendt2);
+    return {fansendt2};
+
+  switches:
+    name: "FanSendTimer2"
+
+- platform: custom
+  lambda: |-
+    id(mech_vent).set_level(1);
+    auto fansendt3 = new FanSendIthoTimer3();
+    App.register_component(fansendt3);
+    return {fansendt3};
+
+  switches:
+    name: "FanSendTimer3"
+
+- platform: custom
+  lambda: |-
+    auto fansendjoin = new FanSendIthoJoin();
+    App.register_component(fansendjoin);
+    return {fansendjoin};
+  switches:
+    name: "FanSendJoin"
+
+text_sensor:
+- platform: custom
+  lambda: |-
+    auto fanrecv = new FanRecv();
+    App.register_component(fanrecv);
+    return {fanrecv->fanspeed,fanrecv->fantimer,fanrecv->remoteid1,fanrecv->remoteid2,fanrecv->lastid};
+
+  text_sensors:
+    - name: "FanSpeed"
+      on_value:
+        then:
+          lambda: |-
+            ESP_LOGD("main", "The current version is %s", x.c_str());
+            if (strcmp(x.c_str(),"Low")==0) {
+                // id(mech_vent).set_level(0.33);
+                // id(mech_vent).set_level(0);
+                ESP_LOGD("main", "Updating speed to low - mocked");
+            }
+            if (strcmp(x.c_str(),"Medium")==0) {
+                // id(mech_vent).set_level(0.67);
+                // id(mech_vent).set_level(2);
+                ESP_LOGD("main", "Updating speed medium - mocked");
+            }
+            if (strcmp(x.c_str(),"High")==0) {
+                // id(mech_vent).set_level(3);
+                ESP_LOGD("main", "Updating speed high - mocked");
+            }
+    - name: "FanTimer"
+    - name: "RemoteID1"
+    - name: "RemoteID2"
+    - name: "LastID"
+
+
+sensor:
+  - platform: wifi_signal
+    name: "FanControl Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "FanControl Uptime"
+

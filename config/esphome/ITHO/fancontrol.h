@@ -3,7 +3,7 @@
 #include "Ticker.h"
 
 IthoCC1101 rf;
-void ITHOinterrupt() ICACHE_RAM_ATTR;
+void ITHOinterrupt() IRAM_ATTR;
 void ITHOcheck();
 
 // extra for interrupt handling
@@ -14,8 +14,10 @@ String OldState="Low";
 int Timer=0;
 int LastIDindex = 0;
 int OldLastIDindex = 0;
-long LastPublish=0; 
+long LastPublish=0;
 bool InitRunned = false;
+IthoPacket pkt;
+String LastID = "";
 
 // Timer values for hardware timer in Fan
 #define Time1      10*60
@@ -26,37 +28,37 @@ bool InitRunned = false;
 class FanRecv : public PollingComponent {
   public:
 
-    // Publish two sensors
-    // Speed: the speed the fan is running at (depending on your model 1-2-3 or 1-2-3-4
     TextSensor *fanspeed = new TextSensor();
-    // Timer left (though this is indicative) when pressing the timer button once, twice or three times
     TextSensor *fantimer = new TextSensor();
+    TextSensor *remoteid1 = new TextSensor();
+    TextSensor *remoteid2 = new TextSensor();
+    TextSensor *lastid = new TextSensor();
 
-    // For now poll every 15 seconds
     FanRecv() : PollingComponent(15000) { }
 
     void setup() {
       rf.init();
-      // Followin wiring schema, change PIN if you wire differently
       pinMode(D1, INPUT);
       attachInterrupt(D1, ITHOinterrupt, RISING);
       //attachInterrupt(D1, ITHOcheck, RISING);
       rf.initReceive();
     }
 
+    String converter(uint8_t *str){
+        return String((char *)str);
+    }
+
     void update() override {
         fanspeed->publish_state(State.c_str());
         fantimer->publish_state(String(Timer).c_str());
+        remoteid1->publish_state(converter(pkt.deviceId1).c_str());
+        remoteid2->publish_state(converter(pkt.deviceId2).c_str());
+        lastid->publish_state(LastID.c_str());
     }
 
 
 };
 
-// Figure out how to do multiple switches instead of duplicating them
-// we need
-// send: low, medium, high, full
-//       timer 1 (10 minutes), 2 (20), 3 (30)
-// To optimize testing, reset published state immediately so you can retrigger (i.e. momentarily button press)
 class FanSendFull : public Component, public Switch {
   public:
 
@@ -169,12 +171,14 @@ void ITHOcheck() {
   noInterrupts();
   if (rf.checkForNewPacket()) {
     IthoCommand cmd = rf.getLastCommand();
+    IthoPacket pkt = rf.getLastPacket();
+    LastID = rf.getLastIDstr();
     switch (cmd) {
       case IthoUnknown:
-        ESP_LOGD("custom", "Unknown state");
+        //ESP_LOGD("custom", "Unknown state, packet is");
         break;
       case IthoLow:
-        ESP_LOGD("custom", "IthoLow");
+        ESP_LOGD("custom", "Low");
         State = "Low";
         Timer = 0;
         break;
@@ -211,6 +215,8 @@ void ITHOcheck() {
       case IthoJoin:
         break;
       case IthoLeave:
+        break;
+      default:
         break;
     }
   }

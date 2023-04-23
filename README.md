@@ -13,14 +13,13 @@ Trying to get ESPHome to mimic what is comprised in
  - https://github.com/adri/IthoEcoFanRFT / https://github.com/supersjimmie/IthoEcoFanRFT
 
 
-# How-to
+# How-to (from HA)
 
-Not tested from HA yet, just from CLI. Assumption: you have a machine ready with the ESP8266 and C1101 connected to it.
+Ensure you have the `esphome` add-on installed 
 
-That machine is also ready to go as instructed per https://esphome.io/guides/getting_started_command_line.html (`pip install`)
-
-- Copy `itho.yaml` and `c1101h` to a directory of choice
-- Run `esphome itho.yaml run` and watch the magic happen
+- Copy the directory structure of `config` into HA's `/config` (or manually ensure you have the dir `ITHO` and it contents present in `/config/esphoome` and start configuring from the UI
+- See the sample contents in `/config/esphome/itho.yaml` for some idea of what is neccesary (obviously needs keys and secrets changed
+- Build and install on the ESP of you choice from Home Assistant
 - Go into HA, choose `integrations` and add your ITHO
 - If everything goes well, you'll see `sensor.fanspeed`, `sensor.fantimer` and a couple of `switch.fansend***` popping up.
 - Now include the contents of `HA_configuration.yaml` in your Home-Assitant configuration and reload HA
