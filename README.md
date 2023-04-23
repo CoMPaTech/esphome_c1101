@@ -1,47 +1,46 @@
-`!!Work in progress!!`
+# Controlling ITHO Mechanical Ventilation
 
-## NOTE - this repo uses custom-HomeAssistant scripting
+:alert: This repository was updated after too many years of being stale :alert:
 
-`If you like native ESPhome scripting and 'just having a fan' in HA, use the alternative repo`
+I've removed everything that wasn't working any more and provided a more clear way how to add this.
 
-As per request by @jodur there is also is https://github.com/CoMPaTech/esphome_c1101_alt which is a quick (but working!) demo of (ab)using the ESPhome fan & output 
+For previous notes, please dive into the older commits :)
 
-# ESPHome ITHO control
+## Requirements
+
+- An ESP8266 (or compatible)
+- A C1101 board (including coil)
+- Some tinkering [see Mechanics](#mechanics)
+- Manually placing some files inside of Home Assistants `/config/esphome` directory
+
+
+## How-to using Home Assistant
+
+Ensure you have the hardware ready ([Mechanics](#mechanics)) and the `esphome` add-on installed 
+
+- Copy the directory structure of `config` into HA's `/config` (or manually ensure you have the dir `ITHO` and it contents present in `/config/esphome` and start configuring from the UI
+- See the sample contents in `/config/esphome/itho.yaml` for some idea of what is neccesary (obviously needs keys and secrets changed)
+- Build and install on the ESP of you choice from Home Assistant
+- Go into HA, choose `integrations` and add your ITHO (it should auto-discover it).
+- If everything goes well, you'll see `switch.fansend...` and quiet a few others popping up.
+- Enjoy!
+
+
+## Current status:
+
+ - Sending High/Medium/Low and the Timers work
+ - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
+
+## ESPHome ITHO control
 Trying to get ESPHome to mimic what is comprised in
  
  - https://github.com/jodur/ESPEASY_Plugin_ITHO/blob/master/_P145_Itho.ino
  - https://github.com/adri/IthoEcoFanRFT / https://github.com/supersjimmie/IthoEcoFanRFT
 
 
-# How-to
+# Mechanics
 
-Not tested from HA yet, just from CLI. Assumption: you have a machine ready with the ESP8266 and C1101 connected to it.
-
-That machine is also ready to go as instructed per https://esphome.io/guides/getting_started_command_line.html (`pip install`)
-
-- Copy `itho.yaml` and `c1101h` to a directory of choice
-- Run `esphome itho.yaml run` and watch the magic happen
-- Go into HA, choose `integrations` and add your ITHO
-- If everything goes well, you'll see `sensor.fanspeed`, `sensor.fantimer` and a couple of `switch.fansend***` popping up.
-- Now include the contents of `HA_configuration.yaml` in your Home-Assitant configuration and reload HA
-- Enjoy!
-
-
-# Current status:
-
- - Sending High/Medium/Low and the Timers work
- - Reading state and indicative time (not counting down (yet) - should HA or ESPhome do that?)
-
-# Current issues:
-
- - How to have 'multiple' switches like we have multiple sensors -> for now comprised using template fan in HA
-
-# Fixed issue
-
- - Adding join command switch as requested by @danieldotnl and as well by @tomduijf
- - Adding 'fan' control in HA
-
-# Wiring schema used:
+## Wiring schema used
 
 ```
 Connections between the CC1101 and the ESP8266 or Arduino:
@@ -58,6 +57,7 @@ CC11xx pins    ESP pins Arduino pins  Description
 
 # Dependencies
 
+ - Home Assistant
  - ESPHome
  - https://github.com/CoMPaTech/esphome_itho
 
