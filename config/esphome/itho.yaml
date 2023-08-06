@@ -5,9 +5,10 @@ esphome:
   includes: 
     - ITHO/fancontrol.h
   libraries: 
+    - SPI  
     - https://github.com/CoMPaTech/esphome_itho.git
     - Ticker
-    - SPI
+
 
 wifi:
   ssid: "secret"
