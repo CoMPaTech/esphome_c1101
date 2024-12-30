@@ -1,6 +1,10 @@
-# Controlling ITHO Mechanical Ventilation
+# Use the external components repository instead of this old archive
 
-:alert: This repository was updated after too many years of being stale :alert:
+:no_entry::warning::no_entry: Please update your bookmarks and install using https://github.com/CoMPaTech/esphome_ct/tree/main/components/cc1101 :no_entry::alert::no_entry:
+
+It features a proper fan unit and buttons to start the a timer or join
+
+# Controlling ITHO Mechanical Ventilation
 
 I've removed everything that wasn't working any more and provided a more clear way how to add this.
 
